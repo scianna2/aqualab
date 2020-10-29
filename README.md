@@ -19,6 +19,7 @@ Versions:
 
 ### Data Structures
 1. [Rule Data](#RuleData)
+2. [Model Data](#ModelData)
 
 <a name="modelingbehaviorchange"/>
 
@@ -57,6 +58,14 @@ Versions:
 #### Rule Data
 | Key | Value | Description |
 | --- | --- | --- |
-| Organism | Organism | the organism that this rule data describes |
-| ValueType | ValueType | the type of behavior that this value describes |
-| CurrValue | CurrValue | numeric value describing this behavior |
+| organism | organism | the organism that this rule data describes |
+| value_type | value_type | the type of behavior that this value describes |
+| curr_value | curr_value | numeric value describing this behavior |
+
+<a name="ModelData"/>
+
+#### Model Data
+| Key | Value | Description |
+| --- | --- | --- |
+| updated_rule_data | updated_rule_data | data about the changed rule which caused a change in sync |
+| curr_tick | curr_tick | the current tick of the model being viewed |

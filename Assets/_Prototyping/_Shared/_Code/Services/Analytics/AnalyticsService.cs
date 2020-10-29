@@ -26,7 +26,7 @@ namespace ProtoAqua
         private string m_CurrSync;
 
         private ModelData m_PrevModelData;
-        private ModelData m_NewModelData;
+        private ModelData m_CurrModelData;
 
         #endregion // Log Variables
 
@@ -61,11 +61,15 @@ namespace ProtoAqua
                 m_ScenarioId = scenarioId;
             }
 
+            RuleData ruleData = new RuleData(actorType, valueType, newValue);
+
+            m_PrevModelData = m_CurrModelData;
+            m_CurrModelData = new ModelData(ruleData, m_CurrTick);
+
             Dictionary<string, string> data = new Dictionary<string, string>()
             {
                 { "scenario_id", scenarioId },
                 { "curr_tick", m_CurrTick },
-                { "prev_sync", m_CurrSync },
                 { "prev_value", prevValue },
                 { "rule_data", new RuleData(actorType, valueType, newValue).DataString }
             };
@@ -97,7 +101,7 @@ namespace ProtoAqua
                 m_ScenarioId = scenarioId;
             }
 
-            if (m_PrevModelData != null && m_NewModelData != null)
+            if (m_PrevModelData != null && m_CurrModelData != null)
             {
                 Dictionary<string, string> data = new Dictionary<string, string>()
                 {
@@ -105,8 +109,9 @@ namespace ProtoAqua
                     { "prev_sync", prevSync },
                     { "new_sync", newSync },
                     { "prev_model_data", m_PrevModelData.DataString },
-                    { "new_model_data", m_NewModelData.DataString }
+                    { "new_model_data", m_CurrModelData.DataString }
                 };
+
                 m_Logger.Log(new LogEvent(data));
             }
         }
@@ -131,25 +136,22 @@ namespace ProtoAqua
         }
     }
 
+    // TODO: Could potentially log state of all actors/values in model, rather than only the most recently updated
     public class ModelData
     {
+        public RuleData UpdatedRuleData { get; }
         public string DataString { get; set; }
 
-        // string prevTick, string newTick, string changedRuleData
-        public ModelData(Dictionary<string, string> data)
+        public ModelData(RuleData updatedRuleData, string currTick)
         {
+            UpdatedRuleData = updatedRuleData;
+
             StringBuilder stringBuilder = new StringBuilder();
-
-            foreach (KeyValuePair<string, string> kvp in data)
-            {
-                stringBuilder.AppendFormat("{{\"{0}\":\"{1}\"}},", kvp.Key, kvp.Value);
-            }
-
-            stringBuilder.Length--;
+            stringBuilder.AppendFormat("{{\"updated_rule_data\":\"{0}\"}},{{\"curr_tick\":\"{1}\"}}", updatedRuleData.DataString, currTick);
             DataString = stringBuilder.ToString();
             stringBuilder.Clear();
         }
     }
-    
+   
     #endregion // Data Classes
 }
