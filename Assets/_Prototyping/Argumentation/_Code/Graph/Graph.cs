@@ -9,6 +9,8 @@ namespace ProtoAqua.Argumentation
         [Header("Graph Dependencies")]
         [SerializeField] private GraphDataManager m_GraphDataManager = null;
 
+        private string id;
+
         private Dictionary<string, Node> nodeDictionary = new Dictionary<string, Node>();
         private Dictionary<string, Link> linkDictionary = new Dictionary<string, Link>();
 
@@ -19,6 +21,11 @@ namespace ProtoAqua.Argumentation
         private string defaultInvalidNodeId;
 
         #region Accessors
+
+        public string Id
+        {
+            get { return id; }
+        }
 
         public Dictionary<string, Link> LinkDictionary
         {
@@ -131,7 +138,8 @@ namespace ProtoAqua.Argumentation
         private void LoadGraph(string packageName)
         {
             ResetGraph();
-            
+
+            id = packageName;
             GraphDataPackage data = m_GraphDataManager.GetPackage(packageName);
 
             foreach (KeyValuePair<string, Node> kvp in data.Nodes)

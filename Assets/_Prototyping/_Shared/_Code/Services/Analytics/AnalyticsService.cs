@@ -51,7 +51,7 @@ namespace ProtoAqua
 
         #endregion // IService
 
-        #region Logging
+        #region Modeling
 
         // TODO: Instead of logging model values here, log that a value was changed, then log the details in LogModelingSyncChange
         public void LogModelingBehaviorChange(string scenarioId, string actorType, string valueType, string prevValue, string newValue)
@@ -116,7 +116,45 @@ namespace ProtoAqua
             }
         }
 
-        #endregion // Logging
+        #endregion // Modeling
+
+        #region Argumentation
+
+        public void LogArgumentationResponseClick(string argumentId, string responseId, string valid)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "argument_id", argumentId },
+                { "response_id", responseId },
+                { "valid", valid }
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        public void LogArgumentationTabClick(string argumentId, string newTab)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "argument_id", argumentId },
+                { "new_tab", newTab }
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        public void LogArgumentationTypeClick(string argumentId, string newType)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "argument_id", argumentId },
+                { "new_type", newType }
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        #endregion // Argumentation
     }
 
     #region Data Classes

@@ -36,6 +36,7 @@ namespace ProtoAqua.Argumentation {
 
         private void ToggleType(string type) {
             m_LinkManager.ToggleType(type);
+            Services.Analytics.LogArgumentationTypeClick(m_LinkManager.Id, type);
         }
 
         public void ToggleButtons(string tab) {
@@ -52,6 +53,8 @@ namespace ProtoAqua.Argumentation {
                 m_EcosystemButtons.SetActive(false);
                 m_ModelButtons.SetActive(true);
             }
+
+            Services.Analytics.LogArgumentationTabClick(m_LinkManager.Id, tab);
         }
 
         public void SetupTagButtons(List<GameObject> responses) {

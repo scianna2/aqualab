@@ -28,6 +28,11 @@ namespace ProtoAqua.Argumentation
         private string currentClaim = "";
         private bool claimSelected = false;
 
+        public string Id
+        {
+            get { return m_Graph.Id; }
+        }
+
         private void Start() 
         {
             m_LinkPool.Initialize();

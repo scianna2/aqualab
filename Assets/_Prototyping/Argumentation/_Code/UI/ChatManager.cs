@@ -29,6 +29,11 @@ namespace ProtoAqua.Argumentation
         private DropSlot dropSlot;
 
         private Routine invalidResponseRoutine;
+
+        public string Id
+        {
+            get { return m_Graph.Id; }
+        }
         
         private void Start()
         {
@@ -96,11 +101,13 @@ namespace ProtoAqua.Argumentation
                 // Add response back into list for reuse
                 m_LinkManager.ResetLink(response, linkId, false);
                 invalidResponseRoutine.Replace(this, InvalidResponseRoutine(response));
+                Services.Analytics.LogArgumentationResponseClick(Id, linkId, "invalid");
             }
             else
             {
                 // If the response is valid, remove it from the player's available responses
                 m_LinkManager.RemoveResponse(response);
+                Services.Analytics.LogArgumentationResponseClick(Id, linkId, "valid");
             }
 
             if(nextNode.NextNodeId != null) {
@@ -133,7 +140,7 @@ namespace ProtoAqua.Argumentation
         private void EndConversationPopup()
         {
             NamedOption[] options = { new NamedOption("Continue") };
-            Services.UI.Popup().Present("Congratulations!", "End of conversation", options);
+            Services.UI.Popup.Present("Congratulations!", "End of conversation", options);
         }
 
         // Shake response back and forth in the chat, indicating that the response is invalid
@@ -152,7 +159,7 @@ namespace ProtoAqua.Argumentation
         // the player can't drag in additional responses.
         private IEnumerator ScrollRoutine(string linkId, GameObject response)
         {
-            m_InputRaycasterLayer.OverrideState(false);
+            //m_InputRaycasterLayer.OverrideState(false);
 
             yield return m_ScrollRect.NormalizedPosTo(0, 0.5f, Axis.Y).Ease(Curve.CubeOut);
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)m_ScrollRect.transform);
@@ -165,7 +172,7 @@ namespace ProtoAqua.Argumentation
             yield return m_ScrollRect.NormalizedPosTo(0, 0.5f, Axis.Y).Ease(Curve.CubeOut);
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)m_ScrollRect.transform);
 
-            m_InputRaycasterLayer.ClearOverride();
+            //m_InputRaycasterLayer.ClearOverride();
         }
 
         private void UpdateButtonList(string linkId) {

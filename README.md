@@ -16,6 +16,10 @@ Versions:
 1. [modelingbehaviorchange](#modelingbehaviorchange)
 2. [modelingtickchange](#modelingtickchange)
 3. [modelingsyncchange](#modelingsyncchange)
+4. [argumentationresponseclick](#argumentationresponseclick)
+5. [argumentationtabclick](#argumentationtabclick)
+6. [argumentationtypeclick](#argumentationtypeclick)
+
 
 ### Data Structures
 1. [Rule Data](#RuleData)
@@ -51,6 +55,31 @@ Versions:
 | scenario_id | scenario_id | id of the current scenario being modeled |
 | prev_sync | prev_sync | the previous sync value between the model and the data |
 | new_sync | new_sync | the new sync value between the model and the data |
+
+<a name="argumentationresponseclick"/>
+
+#### argumentationresponseclick (index=4)
+| Key | Value | Description |
+| --- | --- | --- |
+| argument_id | argument_id | id for the current argument |
+| response_id | response_id | id for the response that was clicked |
+| valid | bool | indicates if response was valid or invalid |
+
+<a name="argumentationtabclick"/>
+
+#### argumentationtabclick (index=5)
+| Key | Value | Description |
+| --- | --- | --- |
+| argument_id | argument_id | id for the current argument |
+| new_tab | new_tab | name of the tab that was clicked |
+
+<a name="argumentationtypeclick"/>
+
+#### argumentationtypeclick (index=6)
+| Key | Value | Description |
+| --- | --- | --- |
+| argument_id | argument_id | id for the current argument |
+| new_type | new_type | name of the type that was clicked |
 
 ## Data Structures
 <a name="RuleData"/>
