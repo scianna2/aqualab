@@ -34,16 +34,19 @@ namespace ProtoAqua.Experiment
         private void OnPanelOn()
         {
             m_Animation.Pause();
+            Services.Analytics.LogExperimentationTabletClick("OPEN");
         }
 
         private void OnPanelOff()
         {
             m_Animation.Restart();
+            Services.Analytics.LogExperimentationTabletClick("CLOSE");
         }
 
         private void OnSetupSubmit()
         {
             gameObject.SetActive(false);
+            Services.Analytics.LogExperimentationStart(ExperimentVars.TankType, ExperimentVars.EcoType);
         }
 
         private void OnExperimentTeardown()

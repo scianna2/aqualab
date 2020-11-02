@@ -155,6 +155,87 @@ namespace ProtoAqua
         }
 
         #endregion // Argumentation
+
+        #region Experimentation
+
+        public void LogExperimentationOpened()
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        // TODO: Change to general dialog click for use in any prototype ?
+        public void LogExperimentationDialogClick()
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        public void LogExperimentationTabletClick(string clickType)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "click_type", clickType }
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        public void LogExperimentationSetupClick(string screenId)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "screen_id", screenId }
+            };
+            
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        // Call from ExperimentSetupPanelWorld.OnSetupSubmit? Need setup values
+        public void LogExperimentationStart(string tankType, string ecoType)
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+                { "tank_type", tankType },
+                { "eco_type", ecoType }
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        public void LogExperimentationTankClick()
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        #endregion // Experimentation
+
+        #region Observation
+
+        public void LogObservationClick()
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>()
+            {
+
+            };
+
+            m_Logger.Log(new LogEvent(data));
+        }
+
+        #endregion // Observation
     }
 
     #region Data Classes
