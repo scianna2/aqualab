@@ -99,7 +99,7 @@ namespace FieldDay
 
             // Write the AccruedLog to a JSON string and convert it to base64
             // TODO: Ensure ASCII from Jo Wilder SimpleLog (if necessary)
-            string postData = SimpleLogUtils.BuildUrlString("data={0}", Uri.EscapeDataString(SimpleLogUtils.BuildDataString(accruedLog)));
+            string postData = SimpleLogUtils.BuildUrlString("data={0}", Uri.EscapeDataString(SimpleLogUtils.BuildPostDataString(accruedLog)));
 
             // Send a POST request to https://fielddaylab.wisc.edu/logger/log.php with the proper content type
             UnityWebRequest req = UnityWebRequest.Post(postUrl, postData);

@@ -1,7 +1,7 @@
 {
     "name": "FieldDay.Unity",
     "references": [
-        "GUID:bf488e18a2f739d4988a784e4a25d00f"
+        "BeauUtil"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

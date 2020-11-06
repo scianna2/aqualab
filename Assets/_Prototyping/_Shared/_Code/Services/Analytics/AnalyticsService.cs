@@ -13,13 +13,16 @@ namespace ProtoAqua
 
         [SerializeField] private string m_AppId = "AQUALAB";
         [SerializeField] private int m_AppVersion = 1;
-        [SerializeField] private QueryParams m_QueryParams = null;
 
         #endregion // Inspector
 
-        private SimpleLog m_Logger;
-        
         #region Log Variables
+
+        private SimpleLog m_Logger;
+
+        // TODO: Separate classes for cached information for each context
+        // TODO: Clear cache on exit (reset)
+        //        - SceneHelper.OnSceneUnload
 
         private string m_ScenarioId;
         private string m_CurrTick;
@@ -28,14 +31,26 @@ namespace ProtoAqua
         private ModelData m_PrevModelData;
         private ModelData m_CurrModelData;
 
+        private enum m_EventCategories
+        {
+            modeling_behavior_change,
+            modeling_tick_change,
+            modeling_sync_change,
+            argumentation_response_click,
+            argumentation_tab_click,
+            argumentation_type_click,
+            experimentation_tablet_click,
+            experimentation_setup_click
+        }
+
         #endregion // Log Variables
 
         #region IService
 
         protected override void OnRegisterService()
         {
-            m_QueryParams = Services.Data.PeekQueryParams();
-            m_Logger = new SimpleLog(m_AppId, m_AppVersion, m_QueryParams);
+            QueryParams queryParams = Services.Data.PeekQueryParams();
+            m_Logger = new SimpleLog(m_AppId, m_AppVersion, queryParams);
         }
 
         protected override void OnDeregisterService()
@@ -53,7 +68,6 @@ namespace ProtoAqua
 
         #region Modeling
 
-        // TODO: Instead of logging model values here, log that a value was changed, then log the details in LogModelingSyncChange
         public void LogModelingBehaviorChange(string scenarioId, string actorType, string valueType, string prevValue, string newValue)
         {
             if (m_ScenarioId != scenarioId)
@@ -74,7 +88,7 @@ namespace ProtoAqua
                 { "rule_data", new RuleData(actorType, valueType, newValue).DataString }
             };
 
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.modeling_behavior_change));
         }
 
         public void LogModelingTickChange(string clickLocation, string prevTick, string newTick)
@@ -89,7 +103,7 @@ namespace ProtoAqua
                 { "new_tick", newTick }
             };
 
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.modeling_tick_change));
         }
 
         public void LogModelingSyncChange(string scenarioId, string prevSync, string newSync)
@@ -112,7 +126,7 @@ namespace ProtoAqua
                     { "new_model_data", m_CurrModelData.DataString }
                 };
 
-                m_Logger.Log(new LogEvent(data));
+                m_Logger.Log(new LogEvent(data, m_EventCategories.modeling_sync_change));
             }
         }
 
@@ -129,7 +143,7 @@ namespace ProtoAqua
                 { "valid", valid }
             };
 
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.argumentation_response_click));
         }
 
         public void LogArgumentationTabClick(string argumentId, string newTab)
@@ -140,7 +154,7 @@ namespace ProtoAqua
                 { "new_tab", newTab }
             };
 
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.argumentation_tab_click));
         }
 
         public void LogArgumentationTypeClick(string argumentId, string newType)
@@ -151,33 +165,12 @@ namespace ProtoAqua
                 { "new_type", newType }
             };
 
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.argumentation_type_click));
         }
 
         #endregion // Argumentation
 
         #region Experimentation
-
-        public void LogExperimentationOpened()
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>()
-            {
-
-            };
-
-            m_Logger.Log(new LogEvent(data));
-        }
-
-        // TODO: Change to general dialog click for use in any prototype ?
-        public void LogExperimentationDialogClick()
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>()
-            {
-
-            };
-
-            m_Logger.Log(new LogEvent(data));
-        }
 
         public void LogExperimentationTabletClick(string clickType)
         {
@@ -186,21 +179,11 @@ namespace ProtoAqua
                 { "click_type", clickType }
             };
 
-            m_Logger.Log(new LogEvent(data));
-        }
-
-        public void LogExperimentationSetupClick(string screenId)
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>()
-            {
-                { "screen_id", screenId }
-            };
-            
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.experimentation_tablet_click));
         }
 
         // Call from ExperimentSetupPanelWorld.OnSetupSubmit? Need setup values
-        public void LogExperimentationStart(string tankType, string ecoType)
+        public void LogExperimentationSetupClick(string tankType, string ecoType)
         {
             Dictionary<string, string> data = new Dictionary<string, string>()
             {
@@ -208,39 +191,19 @@ namespace ProtoAqua
                 { "eco_type", ecoType }
             };
 
-            m_Logger.Log(new LogEvent(data));
-        }
-
-        public void LogExperimentationTankClick()
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>()
-            {
-
-            };
-
-            m_Logger.Log(new LogEvent(data));
+            m_Logger.Log(new LogEvent(data, m_EventCategories.experimentation_setup_click));
         }
 
         #endregion // Experimentation
 
         #region Observation
 
-        public void LogObservationClick()
-        {
-            Dictionary<string, string> data = new Dictionary<string, string>()
-            {
-
-            };
-
-            m_Logger.Log(new LogEvent(data));
-        }
+        // TODO: scan start, scan stop, click on scanned object, click to move
 
         #endregion // Observation
     }
 
     #region Data Classes
-
-    // TODO: Refactor classes to implement an interface, since both have DataString field ?
 
     public class RuleData
     {
@@ -250,8 +213,7 @@ namespace ProtoAqua
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendFormat("{{\"organism\":\"{0}\"}},{{\"value_type\":\"{1}\"}},{{\"curr_value\":\"{2}\"}}", organism, valueType, currValue);
-            DataString = stringBuilder.ToString();
-            stringBuilder.Clear();
+            DataString = stringBuilder.Flush();
         }
     }
 
@@ -267,8 +229,7 @@ namespace ProtoAqua
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendFormat("{{\"updated_rule_data\":\"{0}\"}},{{\"curr_tick\":\"{1}\"}}", updatedRuleData.DataString, currTick);
-            DataString = stringBuilder.ToString();
-            stringBuilder.Clear();
+            DataString = stringBuilder.Flush();
         }
     }
    

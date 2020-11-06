@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using BeauUtil;
 
 namespace FieldDay
 {
     public class SimpleLogUtils
     {
-        // TODO: Does it make more sense to have these imports here, or in SimpleLog?
         [DllImport("__Internal")]
         public static extern string GetCookie(string name);
 
@@ -47,7 +47,7 @@ namespace FieldDay
             return Int64.Parse(id);
         }
 
-        public static string BuildDataString(List<ILogEvent> log)
+        public static string BuildPostDataString(List<ILogEvent> log)
         {
             foreach (ILogEvent logEvent in log)
             {
@@ -59,27 +59,20 @@ namespace FieldDay
 
             // Remove trailing comma
             stringBuilder.Length--;
-            string jsonString = stringBuilder.ToString();
-            stringBuilder.Clear();
-
-            return btoa(jsonString);
+            return btoa(stringBuilder.Flush());
         }
 
         // https://stackoverflow.com/questions/39111586/stringbuilder-appendformat-ienumarble
         public static string BuildUrlString(string formatString, params object[] args)
         {
             stringBuilder.AppendFormat(formatString, args);
-            string urlString = stringBuilder.ToString();
-            stringBuilder.Clear();
-            
-            return urlString;
+            return stringBuilder.Flush();
         }
 
         // https://stackoverflow.com/questions/46093210/c-sharp-version-of-the-javascript-function-btoa
         public static string btoa(string str)
         {
-            byte[] bytes = Encoding.GetEncoding(ISOEncodingId).GetBytes(str);
-            return System.Convert.ToBase64String(bytes);
+            return System.Convert.ToBase64String(Encoding.GetEncoding(ISOEncodingId).GetBytes(str));
         }
     }
 }
