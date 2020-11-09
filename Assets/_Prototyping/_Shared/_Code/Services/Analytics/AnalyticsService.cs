@@ -14,6 +14,8 @@ namespace ProtoAqua
         [SerializeField] private string m_AppId = "AQUALAB";
         [SerializeField] private int m_AppVersion = 1;
 
+        private SceneHelper.SceneLoadAction m_Unload;
+
         #endregion // Inspector
 
         #region Log Variables
@@ -51,6 +53,19 @@ namespace ProtoAqua
         {
             QueryParams queryParams = Services.Data.PeekQueryParams();
             m_Logger = new SimpleLog(m_AppId, m_AppVersion, queryParams);
+
+            m_Unload = Unload;
+            SceneHelper.OnSceneUnload += m_Unload;
+        }
+
+        private void Unload(SceneBinding inScene, object inContext)
+        {
+            m_ScenarioId = null;
+            m_CurrTick = null;
+            m_CurrSync = null;
+            
+            m_PrevModelData = null;
+            m_CurrModelData = null;
         }
 
         protected override void OnDeregisterService()
