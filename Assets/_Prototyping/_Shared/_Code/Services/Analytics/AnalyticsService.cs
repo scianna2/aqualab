@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using BeauData;
 using BeauUtil;
 using FieldDay;
@@ -21,17 +20,7 @@ namespace ProtoAqua
         #region Log Variables
 
         private SimpleLog m_Logger;
-
-        // TODO: Separate classes for cached information for each context
-        // TODO: Clear cache on exit (reset)
-        //        - SceneHelper.OnSceneUnload
-
-        private string m_ScenarioId;
-        private string m_CurrTick;
-        private string m_CurrSync;
-
-        private ModelData m_PrevModelData;
-        private ModelData m_CurrModelData;
+        private ModelState m_ModelState;
 
         private enum m_EventCategories
         {
@@ -54,18 +43,15 @@ namespace ProtoAqua
             QueryParams queryParams = Services.Data.PeekQueryParams();
             m_Logger = new SimpleLog(m_AppId, m_AppVersion, queryParams);
 
+            m_ModelState = new ModelState();
+
             m_Unload = Unload;
             SceneHelper.OnSceneUnload += m_Unload;
         }
 
         private void Unload(SceneBinding inScene, object inContext)
         {
-            m_ScenarioId = null;
-            m_CurrTick = null;
-            m_CurrSync = null;
-            
-            m_PrevModelData = null;
-            m_CurrModelData = null;
+            m_ModelState = null;
         }
 
         protected override void OnDeregisterService()
@@ -85,20 +71,20 @@ namespace ProtoAqua
 
         public void LogModelingBehaviorChange(string scenarioId, string actorType, string valueType, string prevValue, string newValue)
         {
-            if (m_ScenarioId != scenarioId)
+            if (m_ModelState.ScenarioId != scenarioId)
             {
-                m_ScenarioId = scenarioId;
+                m_ModelState.ScenarioId = scenarioId;
             }
 
             RuleData ruleData = new RuleData(actorType, valueType, newValue);
 
-            m_PrevModelData = m_CurrModelData;
-            m_CurrModelData = new ModelData(ruleData, m_CurrTick);
+            m_ModelState.PrevModelData = m_ModelState.CurrModelData;
+            m_ModelState.CurrModelData = new ModelData(ruleData, m_ModelState.CurrTick);
 
             Dictionary<string, string> data = new Dictionary<string, string>()
             {
                 { "scenario_id", scenarioId },
-                { "curr_tick", m_CurrTick },
+                { "curr_tick", m_ModelState.CurrTick },
                 { "prev_value", prevValue },
                 { "rule_data", new RuleData(actorType, valueType, newValue).DataString }
             };
@@ -108,11 +94,11 @@ namespace ProtoAqua
 
         public void LogModelingTickChange(string clickLocation, string prevTick, string newTick)
         {
-            m_CurrTick = newTick;
+            m_ModelState.CurrTick = newTick;
 
             Dictionary<string, string> data = new Dictionary<string, string>()
             {
-                { "scenario_id", m_ScenarioId},
+                { "scenario_id", m_ModelState.ScenarioId},
                 { "click_location", clickLocation },
                 { "prev_tick", prevTick },
                 { "new_tick", newTick }
@@ -123,22 +109,22 @@ namespace ProtoAqua
 
         public void LogModelingSyncChange(string scenarioId, string prevSync, string newSync)
         {
-            m_CurrSync = newSync;
+            m_ModelState.CurrSync = newSync;
 
-            if (m_ScenarioId != scenarioId)
+            if (m_ModelState.ScenarioId != scenarioId)
             {
-                m_ScenarioId = scenarioId;
+                m_ModelState.ScenarioId = scenarioId;
             }
 
-            if (m_PrevModelData != null && m_CurrModelData != null)
+            if (m_ModelState.PrevModelData != null && m_ModelState.CurrModelData != null)
             {
                 Dictionary<string, string> data = new Dictionary<string, string>()
                 {
                     { "scenario_id", scenarioId },
                     { "prev_sync", prevSync },
                     { "new_sync", newSync },
-                    { "prev_model_data", m_PrevModelData.DataString },
-                    { "new_model_data", m_CurrModelData.DataString }
+                    { "prev_model_data", m_ModelState.PrevModelData.DataString },
+                    { "new_model_data", m_ModelState.CurrModelData.DataString }
                 };
 
                 m_Logger.Log(new LogEvent(data, m_EventCategories.modeling_sync_change));
@@ -217,36 +203,4 @@ namespace ProtoAqua
 
         #endregion // Observation
     }
-
-    #region Data Classes
-
-    public class RuleData
-    {
-        public string DataString { get; set; }
-
-        public RuleData(string organism, string valueType, string currValue)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendFormat("{{\"organism\":\"{0}\"}},{{\"value_type\":\"{1}\"}},{{\"curr_value\":\"{2}\"}}", organism, valueType, currValue);
-            DataString = stringBuilder.Flush();
-        }
-    }
-
-    // TODO: Could potentially log state of all actors/values in model, rather than only the most recently updated
-    public class ModelData
-    {
-        public RuleData UpdatedRuleData { get; }
-        public string DataString { get; set; }
-
-        public ModelData(RuleData updatedRuleData, string currTick)
-        {
-            UpdatedRuleData = updatedRuleData;
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendFormat("{{\"updated_rule_data\":\"{0}\"}},{{\"curr_tick\":\"{1}\"}}", updatedRuleData.DataString, currTick);
-            DataString = stringBuilder.Flush();
-        }
-    }
-   
-    #endregion // Data Classes
 }
