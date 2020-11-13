@@ -8,7 +8,7 @@
         "BeauUtil",
         "BeauMacro",
         "Unity.TextMeshPro",
-        "FieldDay.Unity"
+        "FieldDay"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
