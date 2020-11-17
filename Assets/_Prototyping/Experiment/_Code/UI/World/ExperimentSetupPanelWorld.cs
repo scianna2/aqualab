@@ -46,8 +46,7 @@ namespace ProtoAqua.Experiment
         private void OnSetupSubmit()
         {
             gameObject.SetActive(false);
-            // TODO: Get correct values
-            Services.Analytics.LogExperimentationSetupClick(ExperimentVars.TankType.ToDebugString(), ExperimentVars.EcoType.ToDebugString());
+            Services.Analytics.LogExperimentationSetupClick();
         }
 
         private void OnExperimentTeardown()

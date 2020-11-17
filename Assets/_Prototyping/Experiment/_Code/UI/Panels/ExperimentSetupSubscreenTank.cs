@@ -90,6 +90,7 @@ namespace ProtoAqua.Experiment
             if (active != null)
             {
                 m_CachedData.Tank = active.GetComponent<TankToggleButton>().Type;
+                Services.Analytics.LogExperimentationTankType(m_CachedData.Tank.ToString());
             }
             else
             {

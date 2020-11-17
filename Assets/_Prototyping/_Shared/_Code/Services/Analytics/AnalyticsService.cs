@@ -21,6 +21,7 @@ namespace ProtoAqua
 
         private SimpleLog m_Logger;
         private ModelState m_ModelState;
+        private ExperimentState m_ExperimentState;
 
         private enum m_EventCategories
         {
@@ -44,6 +45,7 @@ namespace ProtoAqua
             m_Logger = new SimpleLog(m_AppId, m_AppVersion, queryParams);
 
             m_ModelState = new ModelState();
+            m_ExperimentState = new ExperimentState();
 
             m_Unload = Unload;
             SceneHelper.OnSceneUnload += m_Unload;
@@ -52,6 +54,7 @@ namespace ProtoAqua
         private void Unload(SceneBinding inScene, object inContext)
         {
             m_ModelState = null;
+            m_ExperimentState = null;
         }
 
         protected override void OnDeregisterService()
@@ -183,13 +186,22 @@ namespace ProtoAqua
             m_Logger.Log(new LogEvent(data, m_EventCategories.experimentation_tablet_click));
         }
 
-        // Call from ExperimentSetupPanelWorld.OnSetupSubmit? Need setup values
-        public void LogExperimentationSetupClick(string tankType, string ecoType)
+        public void LogExperimentationTankType(string tankType)
+        {
+            m_ExperimentState.TankType = tankType;
+        }
+
+        public void LogExperimentationEcoType(string ecoType)
+        {
+            m_ExperimentState.EcoType = ecoType;
+        }
+
+        public void LogExperimentationSetupClick()
         {
             Dictionary<string, string> data = new Dictionary<string, string>()
             {
-                { "tank_type", tankType },
-                { "eco_type", ecoType }
+                { "tank_type", m_ExperimentState.TankType },
+                { "eco_type", m_ExperimentState.EcoType }
             };
 
             m_Logger.Log(new LogEvent(data, m_EventCategories.experimentation_setup_click));

@@ -93,6 +93,9 @@ namespace ProtoAqua.Experiment
             if (active != null)
             {
                 m_CachedData.EcosystemId = active.GetComponent<EcoToggleButton>().EcoId;
+
+                // TODO: Find a way to get the eco type as a string without using ToDebugString() ?
+                Services.Analytics.LogExperimentationEcoType(m_CachedData.EcosystemId.ToDebugString());
             }
             else
             {
