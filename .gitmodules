@@ -22,5 +22,5 @@
 	url = https://github.com/BeauPrime/BeauMacro
 [submodule "Submodules/opengamedata-unity"]
 	path = Submodules/opengamedata-unity
-	url = https://github.com/fielddaylab/opengamedata-unity.git
+	url = https://github.com/opengamedata/opengamedata-unity
 	branch = main
