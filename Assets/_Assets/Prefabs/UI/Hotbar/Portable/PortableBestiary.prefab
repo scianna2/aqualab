@@ -1714,9 +1714,7 @@ MonoBehaviour:
   m_HideOnStart: 1
   m_Id:
     m_Source: 
-    m_Hash:
-      m_HashValue: 0
-  m_EntryTypeToggleGroup: {fileID: 98192348591536874}
+    m_Hash: 0
   m_CritterGroupToggle: {fileID: 3822240618402520122}
   m_EcosystemGroupToggle: {fileID: 3786301455703734526}
   m_EntryLayoutGroup: {fileID: 6627476120995022207}

@@ -5,20 +5,26 @@
 
 :: node.intro
 @showClaims
-@linkToNode link.NotEnoughUrchins, node.NotEnoughUrchins
-So, what did you find out?
+@linkToNode link.SiteAUrchinBarren, node.SiteAUrchinBarren, link.SiteASafe, node.SiteASafe
+People are getting panicky... Is an urchin barren coming?
 
 // not enough urchins
 
-:: node.NotEnoughUrchins
-@invalidNodeId  node.invalid.NotEnoughUrchins
-@linkToNode     Urchin.Eats.BullKelp, node.end
-Really? Why is that?
+:: node.SiteAUrchinBarren
+@invalidNodeId  node.invalid.SiteAUrchinBarren
+@linkToNode     Urchin.Eats.BullKelp, Urchin.Eats.GiantKelp, SeaOtter.Eats.Urchin, node.invalid.SiteAUrchinBarren
+Oh, no! What makes you think that?
 
-:: node.NotEnoughUrchins.Continue
-@invalidNodeId  node.invalid.NotEnoughUrchins
-@linkToNode     Urchin.Eats.BullKelp, node.end
-Why aren't there enough urchins?
+:: node.SiteASafe
+@invalidNodeId node.invalid.default
+@linkToNode     Urchin.Eats.BullKelp, Urchin.Eats.GiantKelp, node.invalid.SiteASafe.anything
+@linkToNode     SeaOtter.Eats.Urchin, node.SiteASafe.behavior.Continue
+How do you know Site A is safe?
+
+:: node.SiteASafe.behavior.Continue
+@linkToNode     
+Huh, you think otters help... Do you have evidence for that?
+
 
 :: node.end
 Aha! Brilliant!
@@ -28,14 +34,23 @@ Aha! Brilliant!
 :: node.invalid.default
 Hmmm, I'm not so sure that's right.
 
-:: node.invalid.NotEnoughUrchins
-@nextNodeId node.NotEnoughUrchins.Continue
-That... doesn't explain it.
+:: node.invalid.SiteAUrchinBarren
+Huh... That doesn't seem to support that there's an urchin barren coming.
+
+:: node.invalid.SiteAUrchin.anything
+@nextNodeId node.SiteASafe
+Huh, that doesn't seem to line up to your claim.
 
 // Claims
 
-:: link.NotEnoughUrchins
-@factId claim
+:: link.SiteAUrchinBarren
+@factId claim1
 @tag claim
 @type claim
-There aren't enough urchins.
+Yes, Site A is going to become an urchin barren.
+
+:: link.SiteASafe
+@factId claim2
+@tag claim
+@type claim
+No way! Site A is totally safe!
