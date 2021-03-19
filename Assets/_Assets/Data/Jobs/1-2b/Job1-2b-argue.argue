@@ -6,14 +6,14 @@
 :: node.intro
 @showClaims
 @linkToNode link.NotEnoughUrchins, node.NotEnoughUrchins
-So, what did you find out?
+I figured it was hopeless... There's no way we can fix Site B, right?
 
 // not enough urchins
 
-:: node.NotEnoughUrchins
+:: node.SideBHopeless
 @invalidNodeId  node.invalid.NotEnoughUrchins
 @linkToNode     Urchin.Eats.BullKelp, node.end
-Really? Why is that?
+I thought so... Maybe I could take a look at your model to see for sure?
 
 :: node.NotEnoughUrchins.Continue
 @invalidNodeId  node.invalid.NotEnoughUrchins
@@ -34,8 +34,14 @@ That... doesn't explain it.
 
 // Claims
 
-:: link.NotEnoughUrchins
+:: link.SideBHopeless
 @factId claim
 @tag claim
 @type claim
-There aren't enough urchins.
+You are right. Site B is hopeless.
+
+:: link.SideBFix
+@factId claim1
+@tag claim
+@type claim
+Site B can be fixed with otters!

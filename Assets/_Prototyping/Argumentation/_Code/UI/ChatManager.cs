@@ -107,15 +107,39 @@ namespace ProtoAqua.Argumentation
         }
 
         private void OpenBestiary(GameObject clicked) {
-            var future = BestiaryApp.RequestFact(BestiaryDescCategory.BOTH);
-            future.OnComplete( (s) => {
-                Debug.Log("Selected: " + s.Fact.name);
-                GameObject newLink = m_LinkManager.ClickBestiaryLink(s);
-                OnSelect(newLink, s.Fact.name);
-                //m_FactText.SetText("Selected: " + s.Fact.GenerateSentence(s));
-            }).OnFail(() => {
-                //m_FactText.SetText("Selected: Nothing");
-            });
+            var name = clicked.name;
+            switch(name) {
+                case "Model": 
+                {
+                    var future = BestiaryApp.RequestModel(BestiaryDescCategory.Model);
+                    future.OnComplete((s) =>
+                    {
+                        Services.Assets.Inventory.TryGetArtifact(out InvItemArtifact artifact);
+                        artifact.TryGetModel(s, out Artifact model);
+                        Debug.Log("Selected " + model.name);
+                        GameObject newLink = m_LinkManager.ClickBestiaryLink(model);
+                        OnSelect(newLink, model.NameTextId());
+                    }).OnFail(() =>
+                    {
+
+                    });
+                        break;
+                }
+                default:
+                {
+                    var future = BestiaryApp.RequestFact(BestiaryDescCategory.BOTH);
+                    future.OnComplete( (s) => {
+                        Debug.Log("Selected: " + s.Fact.name);
+                        GameObject newLink = m_LinkManager.ClickBestiaryLink(s);
+                        OnSelect(newLink, s.Fact.name);
+                        //m_FactText.SetText("Selected: " + s.Fact.GenerateSentence(s));
+                    }).OnFail(() => {
+                        //m_FactText.SetText("Selected: Nothing");
+                    });
+                    break;
+                }
+            }
+            
         }
 
         // Add functionality to respond with more nodes, etc. This is where the NPC "talks back"

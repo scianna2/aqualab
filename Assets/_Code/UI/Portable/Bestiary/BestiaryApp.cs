@@ -19,7 +19,6 @@ namespace Aqua.Portable
         [Serializable] private class FactPool : SerializablePool<BestiaryFactButton> { }
         [Serializable] private class RangeFactPool : SerializablePool<BestiaryRangeFactButton> { }
         [Serializable] private class WaterPropertyPool : SerializablePool<BestiaryWaterPropertyButton> { }
-
         public class OpenToRequest : IPortableRequest
         {
             public BestiaryUpdateParams Target;
@@ -57,6 +56,42 @@ namespace Aqua.Portable
             public Future<StringHash32> Return;
 
             public SelectBestiaryEntryRequest(BestiaryDescCategory inCategory, Func<BestiaryDesc, bool> inCustomValidator = null)
+            {
+                Category = inCategory;
+                CustomValidator = inCustomValidator;
+                Return = Future.Create<StringHash32>();
+            }
+
+            public StringHash32 AppId()
+            {
+                return "bestiary";
+            }
+
+            public bool CanClose()
+            {
+                return true;
+            }
+
+            public bool CanNavigateApps()
+            {
+                return false;
+            }
+
+            public void Dispose()
+            {
+                CustomValidator = null;
+                if (Return.IsInProgress())
+                    Return.Fail();
+                Ref.Dispose(ref Return);
+            }
+        }
+
+        public class SelectModelEntryRequest : IPortableRequest
+        {
+            public BestiaryDescCategory Category;
+            public Func<Artifact, bool> CustomValidator;
+            public Future<StringHash32> Return;
+            public SelectModelEntryRequest(BestiaryDescCategory inCategory, Func<Artifact, bool> inCustomValidator = null)
             {
                 Category = inCategory;
                 CustomValidator = inCustomValidator;
@@ -161,9 +196,11 @@ namespace Aqua.Portable
         [NonSerialized] private PortableTweaks m_Tweaks = null;
         [NonSerialized] private BestiaryDescCategory m_CurrentEntryGroup = BestiaryDescCategory.Critter;
         [NonSerialized] private BestiaryDesc m_CurrentEntry;
-        
+        [NonSerialized] private Artifact m_CurrentModel;
+
         [NonSerialized] private SelectBestiaryEntryRequest m_SelectBestiaryRequest = null;
         [NonSerialized] private SelectFactRequest m_SelectFactRequest = null;
+        [NonSerialized] private SelectModelEntryRequest m_SelectModelRequest = null;
 
         protected override void Awake()
         {
@@ -234,8 +271,15 @@ namespace Aqua.Portable
 
         private void OnEntrySelectClicked()
         {
-            Assert.NotNull(m_SelectBestiaryRequest);
-            m_SelectBestiaryRequest.Return.Complete(m_CurrentEntry.Id());
+            if(m_SelectBestiaryRequest != null) {
+                m_SelectBestiaryRequest.Return.Complete(m_CurrentEntry.Id());
+            }
+            else if(m_SelectModelRequest != null) {
+                m_SelectModelRequest.Return.Complete(m_CurrentModel.Id());
+            }
+            else {
+                throw new NullReferenceException("entry is null.");
+            }
             m_ParentMenu.Hide();
         }
 
@@ -284,6 +328,7 @@ namespace Aqua.Portable
             Ref.Dispose(ref m_SelectFactRequest);
 
             m_CurrentEntry = null;
+            m_CurrentModel = null;
 
             base.OnHide(inbInstant);
         }
@@ -365,6 +410,58 @@ namespace Aqua.Portable
             LoadEntryGroup(category, null, true);
         }
 
+        private void LoadModelSelection(SelectModelEntryRequest inSelect)
+        {
+            m_SelectModelRequest = inSelect;
+
+            m_PromptText.gameObject.SetActive(true);
+            m_SelectEntryButton.gameObject.SetActive(true);
+
+            BestiaryDescCategory category = inSelect.Category;
+            switch(inSelect.Category)
+            {
+                case BestiaryDescCategory.Critter:
+                    {
+                        m_CritterGroupToggle.interactable = true;
+                        m_EcosystemGroupToggle.interactable = false;
+                        m_ModelGroupToggle.interactable = false;
+                        m_PromptText.SetText("Select Critter");
+                        break;
+                    }
+
+                case BestiaryDescCategory.Environment:
+                    {
+                        m_CritterGroupToggle.interactable = false;
+                        m_EcosystemGroupToggle.interactable = true;
+                        m_ModelGroupToggle.interactable = false;
+                        m_PromptText.SetText("Select Environment");
+                        break;
+                    }
+                
+                case BestiaryDescCategory.Model:
+                    {
+                        m_CritterGroupToggle.interactable = false;
+                        m_EcosystemGroupToggle.interactable = false;
+                        m_ModelGroupToggle.interactable = true;
+                        m_PromptText.SetText("Select Model");
+                        break;
+                    }
+
+                case BestiaryDescCategory.BOTH:
+                    {
+                        m_CritterGroupToggle.interactable = true;
+                        m_EcosystemGroupToggle.interactable = true;
+                        m_ModelGroupToggle.interactable = true;
+                        m_PromptText.SetText("Select Entry");
+
+                        category = BestiaryDescCategory.Critter;
+                        break;
+                    }
+            }
+
+            LoadEntryGroup(category, null, true);
+        }
+
         private void LoadFactSelection(SelectFactRequest inSelect)
         {
             m_SelectFactRequest = inSelect;
@@ -378,6 +475,7 @@ namespace Aqua.Portable
                     {
                         m_CritterGroupToggle.interactable = true;
                         m_EcosystemGroupToggle.interactable = false;
+                        m_ModelGroupToggle.interactable = false;
                         m_PromptText.SetText("Select Critter Fact");
                         break;
                     }
@@ -386,14 +484,23 @@ namespace Aqua.Portable
                     {
                         m_CritterGroupToggle.interactable = false;
                         m_EcosystemGroupToggle.interactable = true;
+                        m_ModelGroupToggle.interactable = false;
                         m_PromptText.SetText("Select Environment Variable");
+                        break;
+                    }
+                case BestiaryDescCategory.Model:
+                    {
+                        m_CritterGroupToggle.interactable = false;
+                        m_ModelGroupToggle.interactable = true;
+                        m_EcosystemGroupToggle.interactable = false;
+                        m_PromptText.SetText("Select  Model");
                         break;
                     }
 
                 case BestiaryDescCategory.BOTH:
                     {
                         m_CritterGroupToggle.interactable = true;
-                        m_EcosystemGroupToggle.interactable = true;
+                        m_EcosystemGroupToggle.interactable = true; 
                         m_PromptText.SetText("Select Fact");
 
                         category = BestiaryDescCategory.Critter;
@@ -468,17 +575,25 @@ namespace Aqua.Portable
                 m_HasSelectionGroup.gameObject.SetActive(false);
                 return;
             }
+            
             Services.Data?.SetVariable("portable:bestiary.currentEntry", inEntry.Id());
+
+            m_CurrentEntry = null;
+            m_CurrentModel = inEntry;
 
             m_NoSelectionGroup.gameObject.SetActive(false);
             m_HasSelectionGroup.gameObject.SetActive(true);
+
+            if (m_SelectModelRequest != null)
+            {
+                m_SelectEntryButton.interactable = m_SelectModelRequest.CustomValidator == null || m_SelectModelRequest.CustomValidator(inEntry);
+            }
 
             m_ScientificNameLabel.SetText("Modelorama");
             m_CommonNameLabel.SetText(inEntry.NameTextId());
 
             m_SketchImage.sprite = inEntry.Icon();
             m_SketchImage.gameObject.SetActive(true);
-            m_SelectEntryButton.interactable = true;
         }
 
         private void LoadEntry(BestiaryDesc inEntry)
@@ -556,6 +671,14 @@ namespace Aqua.Portable
             {
                 Show();
                 LoadFactSelection(factSelect);
+                return true;
+            }
+
+            SelectModelEntryRequest modelSelect = inRequest as SelectModelEntryRequest;
+            if (modelSelect != null)
+            {
+                Show();
+                LoadModelSelection(modelSelect);
                 return true;
             }
             
@@ -669,6 +792,13 @@ namespace Aqua.Portable
         static public Future<PlayerFactParams> RequestFact(BestiaryDescCategory inCategory, Func<PlayerFactParams, bool> inValidator = null)
         {
             var request = new SelectFactRequest(inCategory, inValidator);
+            Services.UI.FindPanel<PortableMenu>().Open(request);
+            return request.Return;
+        }
+
+        static public Future<StringHash32> RequestModel(BestiaryDescCategory inCategory, Func<Artifact, bool> inValidator = null)
+        {
+            var request = new SelectModelEntryRequest(inCategory, inValidator);
             Services.UI.FindPanel<PortableMenu>().Open(request);
             return request.Return;
         }

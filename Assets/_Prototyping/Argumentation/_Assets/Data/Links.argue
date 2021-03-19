@@ -1,5 +1,5 @@
 
-// Eats
+// Bestiary
 
 :: SeaOtter.Eats.Urchin
 @factId SeaOtter.Eats.Urchin
@@ -18,3 +18,11 @@ Urchins eat giant kelp
 @tag behavior
 @type urchin
 Urchins eat bull kelp
+
+// Model
+
+:: UrchinBarren.Rescue
+@factId UrchinBarren.Rescue
+@tag model
+@type model
+Site A still has kelp

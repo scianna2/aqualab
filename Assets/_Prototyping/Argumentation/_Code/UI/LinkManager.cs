@@ -60,6 +60,13 @@ namespace ProtoAqua.Argumentation
 
         }
 
+        public GameObject ClickBestiaryLink(Artifact s) {
+            ChatBubble newLink = m_LinkPool.Alloc();
+            newLink.gameObject.SetActive(false);
+            newLink.InitializeLinkData(s.Id(), "model", "model", s.NameTextId());
+            return newLink.gameObject;
+        }
+
         // Reset a given response once used. If the response isn't placed in the chat,
         // delete will be true and the object can be freed from the pool before being
         // reallocated by CreateLink
